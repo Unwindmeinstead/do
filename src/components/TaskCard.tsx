@@ -28,7 +28,6 @@ const TaskCard = ({
   onDelete,
 }: TaskCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
 
   // Stacked cards behind each other with subtle rotation like the reference
@@ -48,17 +47,13 @@ const TaskCard = ({
   // Z-index - front card on top, but dragging card always on very top
   const zIndex = isDragging ? 1000 : total - reverseIndex;
 
-  const handleDragStart = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    dragStartRef.current = { x: info.point.x, y: info.point.y };
+  const handleDragStart = () => {
     hasMovedRef.current = false;
   };
 
-  const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const dx = Math.abs(info.point.x - dragStartRef.current.x);
-    const dy = Math.abs(info.point.y - dragStartRef.current.y);
-
-    // If moved more than 10px, consider it a drag
-    if (dx > 10 || dy > 10) {
+  const handleDrag = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // If moved more than 5px, consider it a drag
+    if (Math.abs(info.offset.x) > 5 || Math.abs(info.offset.y) > 5) {
       hasMovedRef.current = true;
       if (!isDragging) {
         setIsDragging(true);
@@ -91,7 +86,8 @@ const TaskCard = ({
     <motion.div
       drag
       dragMomentum={false}
-      dragElastic={0.1}
+      dragElastic={0}
+      dragTransition={{ power: 0, timeConstant: 0 }}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
@@ -102,10 +98,8 @@ const TaskCard = ({
         opacity: 0
       }}
       animate={{
-        scale: isDragging ? 1.05 : scale,
-        y: isDragging ? 0 : yOffset,
+        scale: isDragging ? 1.02 : scale,
         rotate: isDragging ? 0 : rotation,
-        x: isDragging ? 0 : xOffset,
         opacity: isDragging ? 1 : 1 - reverseIndex * 0.15
       }}
       exit={{
@@ -115,25 +109,28 @@ const TaskCard = ({
       }}
       transition={{
         type: "spring",
-        stiffness: 400,
-        damping: 35,
-        mass: 0.5,
+        stiffness: 500,
+        damping: 40,
+        mass: 0.3,
       }}
       whileHover={!isDragging ? {
-        y: yOffset - 15,
-        scale: scale + 0.03,
+        y: yOffset - 12,
+        scale: scale + 0.02,
         transition: {
           type: "spring",
-          stiffness: 500,
-          damping: 30
+          stiffness: 600,
+          damping: 35
         }
       } : undefined}
-      whileTap={!isDragging ? { scale: scale - 0.02 } : undefined}
       onClick={handleClick}
-      style={{ zIndex }}
+      style={{
+        zIndex,
+        x: isDragging ? undefined : xOffset,
+        y: isDragging ? undefined : yOffset,
+      }}
       className={`absolute rounded-3xl p-6 w-80 min-h-44 cursor-grab active:cursor-grabbing
                   bg-gradient-to-br ${color.bg} ${color.border} border
-                  shadow-[0_25px_80px_-20px_rgba(0,0,0,0.8)] ${isDragging ? 'shadow-[0_35px_100px_-20px_rgba(0,0,0,0.9)]' : ''}`}
+                  shadow-[0_25px_80px_-20px_rgba(0,0,0,0.8)] ${isDragging ? 'shadow-[0_40px_100px_-15px_rgba(0,0,0,0.95)]' : ''}`}
     >
       {/* X button to delete */}
       <motion.button
@@ -163,4 +160,3 @@ const TaskCard = ({
 };
 
 export default TaskCard;
-

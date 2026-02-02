@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Priority, TaskType, PRIORITY_COLORS } from "@/utils/taskUtils";
 
 interface ExpandedCardProps {
@@ -23,13 +23,11 @@ const ExpandedCard = ({
   color,
   priority,
   label,
-  position,
   onClose,
   onUpdate,
 }: ExpandedCardProps) => {
   const [editedText, setEditedText] = useState(text);
   const [editedNotes, setEditedNotes] = useState(notes);
-  const constraintsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Lock body scroll when expanded
@@ -46,37 +44,37 @@ const ExpandedCard = ({
 
   return (
     <motion.div
-      ref={constraintsRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center"
       onClick={handleClose}
     >
       <motion.div
         drag
         dragMomentum={false}
-        dragElastic={0.1}
-        initial={{ 
-          scale: 0.5, 
+        dragElastic={0}
+        dragTransition={{ power: 0, timeConstant: 0 }}
+        initial={{
+          scale: 0.5,
           opacity: 0,
         }}
-        animate={{ 
-          scale: 1, 
+        animate={{
+          scale: 1,
           opacity: 1,
         }}
-        exit={{ 
-          scale: 0.5, 
+        exit={{
+          scale: 0.5,
           opacity: 0,
         }}
         transition={{
           type: "spring",
-          stiffness: 400,
-          damping: 30,
+          stiffness: 500,
+          damping: 35,
         }}
         onClick={(e) => e.stopPropagation()}
-        className={`fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                    w-[90%] max-w-md min-h-[300px] rounded-3xl p-6
+        className={`w-[90%] max-w-md min-h-[300px] rounded-3xl p-6
                     bg-gradient-to-br ${color.bg} ${color.border} border
                     shadow-2xl cursor-grab active:cursor-grabbing`}
       >

@@ -81,7 +81,7 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
         }}
       >
         <div
-          className={`relative rounded-full flex items-center px-2 py-1 
+          className={`relative rounded-full flex items-center h-12 px-2
                       bg-zinc-900/90 backdrop-blur-xl
                       border transition-all duration-75
                       ${borderFlash
@@ -89,22 +89,24 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
               : "border-white/10"
             }`}
         >
-          {/* Intelligent task type label - positioned absolutely to avoid layout shifts */}
-          <AnimatePresence mode="wait">
-            {currentLabel && (
-              <motion.span
-                key={currentLabel}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px] uppercase tracking-wider 
-                           bg-white/10 text-white/70 rounded-full whitespace-nowrap pointer-events-none z-10"
-              >
-                {currentLabel}
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {/* Intelligent task type label - positioned absolutely with fixed height container */}
+          <div className="absolute left-3 h-full flex items-center pointer-events-none z-10">
+            <AnimatePresence mode="wait">
+              {currentLabel && (
+                <motion.span
+                  key={currentLabel}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="px-2 py-0.5 text-[10px] uppercase tracking-wider 
+                             bg-white/10 text-white/70 rounded-full whitespace-nowrap"
+                >
+                  {currentLabel}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
 
           <input
             type="text"
@@ -112,9 +114,9 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder="What needs to be done?"
-            className="flex-1 bg-transparent py-2.5 text-white placeholder:text-white/40 
+            className="flex-1 bg-transparent h-full text-white placeholder:text-white/40 
                        outline-none text-sm"
-            style={{ paddingLeft: currentLabel ? "80px" : "16px", paddingRight: "16px" }}
+            style={{ paddingLeft: currentLabel ? "80px" : "16px", paddingRight: "8px" }}
           />
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -122,7 +124,7 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
             onClick={handleSubmit}
             disabled={!value.trim()}
             className="w-9 h-9 rounded-full bg-white flex items-center justify-center 
-                       disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+                       disabled:opacity-30 disabled:cursor-not-allowed transition-opacity flex-shrink-0"
           >
             <ArrowRight className="w-4 h-4 text-black" />
           </motion.button>
