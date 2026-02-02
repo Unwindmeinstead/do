@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sleek dark casino-inspired design system */
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 100%;
+    --card-highlight: 0 0% 20%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 40%;
+
+    --radius: 1.5rem;
+
+    /* Custom card stack variables */
+    --card-shadow: 0 25px 80px -20px hsl(0 0% 0% / 0.8);
+    --card-shadow-hover: 0 35px 100px -20px hsl(0 0% 0% / 0.9);
+    --input-glow: 0 0 40px hsl(0 0% 15% / 0.3);
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Hide scrollbar for cleaner look */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer utilities {
+  .card-glass {
+    background: linear-gradient(
+      145deg,
+      hsl(220 15% 14%) 0%,
+      hsl(220 15% 10%) 100%
+    );
+    box-shadow: var(--card-shadow);
+  }
+
+  .input-glass {
+    background: hsl(220 15% 12%);
+    box-shadow: var(--input-glow);
+  }
+}
+
+/* Shimmer animation for typing indicator */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
