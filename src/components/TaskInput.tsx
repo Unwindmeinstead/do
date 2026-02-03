@@ -139,7 +139,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
 
   return (
     <div
-      className="fixed left-0 right-0 z-50 flex justify-center px-4"
+      className="fixed left-1/2 -translate-x-1/2 z-50 flex justify-center px-4 w-full max-w-xl"
       style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
     >
       <motion.div
@@ -148,12 +148,12 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
         transition={{ duration: 0.2 }}
       >
         <div
-          className={`relative w-full max-w-xl rounded-full flex items-center h-14 pl-6 pr-1.5
-                      bg-black shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+          className={`relative w-full rounded-full flex items-center h-14 pl-6 pr-1.5
+                      bg-background/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]
                       border transition-[border,box-shadow] duration-75 overflow-hidden
                       ${borderFlash
-              ? "border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-              : "border-white/10"
+              ? "border-primary/40 shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              : "border-border"
             }`}
         >
           {/* Intelligent task type label or Thinking dots */}
@@ -239,7 +239,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={isListening ? "Listening..." : "What are you getting done today?"}
-            className="flex-1 min-w-0 bg-transparent h-full text-white placeholder:text-white/30 
+            className="flex-1 min-w-0 bg-transparent h-full text-foreground placeholder:text-muted-foreground/60
                        outline-none text-[16px] leading-normal"
             style={{
               paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? (currentTemporal ? "150px" : "80px") : "4px",
