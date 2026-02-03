@@ -267,7 +267,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             onKeyDown={handleKeyDown}
             placeholder={isListening ? "Listening..." : "What are you getting done today?"}
             className="flex-1 min-w-0 bg-transparent h-full text-foreground placeholder:text-muted-foreground/60
-                       outline-none text-[16px] leading-normal"
+                       outline-none text-[16px] leading-normal placeholder:text-[13px] md:placeholder:text-[16px]"
             style={{
               paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? "85px" : "16px",
               paddingRight: "4px"
