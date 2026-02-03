@@ -57,15 +57,6 @@ const TaskCard = ({
   const targetY = isUndocked ? 0 : -stackingIndex * CARD_OFFSET;
   const targetScale = isUndocked ? 1 : 1 - stackingIndex * SCALE_FACTOR;
 
-  // Sync motion values with target state if not dragging or undocked
-  // This ensures the initial "jump" is eliminated
-  useEffect(() => {
-    if (!isDragging && !isUndocked) {
-      x.set(0);
-      y.set(targetY);
-    }
-  }, [stackingIndex, isDragging, isUndocked, targetY, x, y]);
-
   // Cards only tilt when in the stack (index > 0) and not undocked
   const targetRotate = (isUndocked || stackingIndex === 0)
     ? 0
@@ -143,21 +134,39 @@ const TaskCard = ({
         touchAction: 'none',
         transformOrigin: "center bottom", // Rotate/scale from bottom center feels more grounded
       }}
-      initial={{ scale: 0.9, opacity: 0 }}
+      initial={{
+        scale: 0.95,
+        opacity: 0,
+        y: targetY + 100, // Slide up from below
+        rotateX: -15 // Subtle 3D tilt
+      }}
       animate={{
         scale: isDragging ? 1.05 : targetScale,
         opacity: opacity,
+        y: isDragging ? undefined : targetY, // Animate Y position relative to stack
+        x: isDragging ? undefined : 0,       // Center X when not dragging
+        rotateX: 0,
         filter: isDragging ? 'brightness(1.05)' : 'brightness(1)',
       }}
-      exit={{ scale: 0.8, opacity: 0, transition: { duration: 0.2 } }}
+      exit={{
+        scale: 0.9,
+        opacity: 0,
+        y: targetY + 20,
+        transition: { duration: 0.2 }
+      }}
       layout
       layoutId={id}
       transition={{
         type: "spring",
-        stiffness: 1000, // Maximum stiffness for instant reaction
-        damping: 50,    // High damping to prevent oscillation
-        mass: 0.1,      // Almost zero mass for no inertia
-        layout: { duration: 0 } // Instant layout transition
+        stiffness: 350,
+        damping: 25,
+        mass: 1,
+        layout: {
+          type: "spring",
+          stiffness: 350,
+          damping: 25,
+          mass: 1
+        }
       }}
       whileHover={!isDragging && stackingIndex === 0 ? {
         scale: 1.02,
