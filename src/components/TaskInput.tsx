@@ -149,7 +149,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
       >
         <div
           className={`relative w-full max-w-xl rounded-full flex items-center h-14 pl-6 pr-1.5
-                      bg-[#1a1a1a]/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+                      bg-black shadow-[0_20px_50px_rgba(0,0,0,0.5)]
                       border transition-[border,box-shadow] duration-75 overflow-hidden
                       ${borderFlash
               ? "border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
@@ -242,7 +242,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             className="flex-1 min-w-0 bg-transparent h-full text-white placeholder:text-white/30 
                        outline-none text-[16px] leading-normal"
             style={{
-              paddingLeft: (isListening || isThinking) ? "90px" : currentLabel ? (currentTemporal ? "150px" : "70px") : "4px",
+              paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? (currentTemporal ? "150px" : "80px") : "4px",
               paddingRight: "4px"
             }}
           />
@@ -252,6 +252,22 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
               pressTimeoutRef.current = setTimeout(startListening, 500);
             }}
             onMouseUp={() => {
+              if (pressTimeoutRef.current) {
+                clearTimeout(pressTimeoutRef.current);
+                if (isListening) {
+                  stopListening();
+                } else {
+                  handleSubmit();
+                }
+              }
+            }}
+            onTouchStart={(e) => {
+              // Prevent default to avoid simulating mouse events if handled here
+              // e.preventDefault(); 
+              pressTimeoutRef.current = setTimeout(startListening, 500);
+            }}
+            onTouchEnd={(e) => {
+              // e.preventDefault();
               if (pressTimeoutRef.current) {
                 clearTimeout(pressTimeoutRef.current);
                 if (isListening) {
