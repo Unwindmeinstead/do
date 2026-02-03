@@ -148,8 +148,8 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
         transition={{ duration: 0.2 }}
       >
         <div
-          className={`relative w-full max-w-xl rounded-2xl flex items-center h-14 pl-4 pr-1.5
-                      bg-[#1a1a1a] shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+          className={`relative w-full max-w-xl rounded-full flex items-center h-14 pl-6 pr-1.5
+                      bg-[#1a1a1a]/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]
                       border transition-[border,box-shadow] duration-75 overflow-hidden
                       ${borderFlash
               ? "border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
@@ -267,7 +267,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                 if (isListening) stopListening();
               }
             }}
-            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300
                        ${isListening ? "bg-red-500 scale-105" : "bg-white"}
                        disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 ml-1`}
           >
