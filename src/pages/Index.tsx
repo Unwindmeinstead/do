@@ -109,7 +109,7 @@ const Index = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center overflow-hidden">
+    <div className="h-[100dvh] w-full bg-black flex flex-col items-center justify-center overflow-hidden fixed inset-0">
       {/* Card stack area */}
       <div className="flex-1 flex items-center justify-center w-full pt-10 pb-32">
         {tasks.length > 0 && (

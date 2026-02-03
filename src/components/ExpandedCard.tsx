@@ -105,7 +105,7 @@ const ExpandedCard = ({
           value={editedText}
           onChange={(e) => setEditedText(e.target.value)}
           className="w-full bg-transparent text-white text-lg font-medium 
-                     outline-none placeholder:text-white/30 mb-4"
+                     outline-none placeholder:text-white/30 mb-4 text-[16px]"
           placeholder="Task title..."
         />
 
@@ -114,7 +114,7 @@ const ExpandedCard = ({
           value={editedNotes}
           onChange={(e) => setEditedNotes(e.target.value)}
           placeholder="Add notes..."
-          className="w-full h-40 bg-white/5 rounded-xl p-4 text-white/80 text-sm
+          className="w-full h-40 bg-white/5 rounded-xl p-4 text-white/80 text-[16px]
                      outline-none placeholder:text-white/30 resize-none
                      border border-white/10 focus:border-white/20 transition-colors"
         />

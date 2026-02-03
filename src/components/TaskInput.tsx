@@ -139,25 +139,20 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
 
   return (
     <div
-      className="fixed left-1/2 z-50 w-[92%] max-w-xl -translate-x-1/2"
-      style={{ bottom: "calc(2rem + env(safe-area-inset-bottom))" }}
+      className="fixed left-0 right-0 z-50 flex justify-center px-4"
+      style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
     >
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 30,
-          delay: 0.2,
-        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
       >
         <div
-          className={`relative rounded-full flex items-center h-14 px-2
-                      bg-black/90 backdrop-blur-xl
-                      border transition-all duration-75
+          className={`relative w-full max-w-xl rounded-2xl flex items-center h-14 pl-4 pr-1.5
+                      bg-[#1a1a1a] shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+                      border transition-[border,box-shadow] duration-75 overflow-hidden
                       ${borderFlash
-              ? "border-white/60 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+              ? "border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
               : "border-white/10"
             }`}
         >
@@ -212,8 +207,8 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                   transition={{ type: "spring", stiffness: 800, damping: 40, mass: 0.5 }}
                   className="flex items-center gap-2"
                 >
-                  <div className="h-7 flex items-center px-1">
-                    <span className={`text-[11px] uppercase font-black tracking-[0.15em] whitespace-nowrap
+                  <div className="h-7 flex items-center px-1 max-w-[80px] md:max-w-none">
+                    <span className={`text-[10px] md:text-[11px] uppercase font-black tracking-[0.1em] md:tracking-[0.15em] whitespace-nowrap truncate
                                      ${TYPE_COLORS[currentType] || 'text-white/70'}`}
                     >
                       {currentLabel}
@@ -224,9 +219,9 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="h-7 flex items-center px-2.5 rounded-full bg-blue-500/10 border border-blue-500/20"
+                      className="h-7 flex items-center px-2 rounded-full bg-blue-500/10 border border-blue-500/20 max-w-[100px] md:max-w-none"
                     >
-                      <span className="text-[10px] text-blue-400/80 font-bold uppercase tracking-wider whitespace-nowrap">
+                      <span className="text-[9px] md:text-[10px] text-blue-400/80 font-bold uppercase tracking-wider whitespace-nowrap truncate">
                         {currentTemporal.date && currentTemporal.date}
                         {currentTemporal.date && currentTemporal.time && " • "}
                         {currentTemporal.time && currentTemporal.time}
@@ -244,16 +239,15 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={isListening ? "Listening..." : "What are you getting done today?"}
-            className="flex-1 bg-transparent h-full text-white placeholder:text-white/40 
-                       outline-none text-sm"
+            className="flex-1 min-w-0 bg-transparent h-full text-white placeholder:text-white/30 
+                       outline-none text-[16px] leading-normal"
             style={{
-              paddingLeft: (isListening || isThinking) ? "110px" : currentLabel ? (currentTemporal ? "220px" : "90px") : "18px",
-              paddingRight: "8px"
+              paddingLeft: (isListening || isThinking) ? "90px" : currentLabel ? (currentTemporal ? "150px" : "70px") : "4px",
+              paddingRight: "4px"
             }}
           />
           <motion.button
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onMouseDown={() => {
               pressTimeoutRef.current = setTimeout(startListening, 500);
             }}
@@ -273,9 +267,9 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                 if (isListening) stopListening();
               }
             }}
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
-                       ${isListening ? "bg-blue-500 scale-110 shadow-[0_0_20px_rgba(59,130,246,0.5)]" : "bg-white"}
-                       disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0`}
+            className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300
+                       ${isListening ? "bg-red-500 scale-105" : "bg-white"}
+                       disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 ml-1`}
           >
             {isListening ? (
               <Mic className="w-5 h-5 text-white animate-pulse" />
