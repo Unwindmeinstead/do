@@ -247,7 +247,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                   transition={{ type: "spring", stiffness: 800, damping: 40, mass: 0.5 }}
                   className="flex items-center gap-2"
                 >
-                  <div className="h-7 flex items-center px-1 max-w-[80px] md:max-w-none">
+                  <div className="h-7 flex items-center px-1 max-w-[70px] md:max-w-none">
                     <span className={`text-[10px] md:text-[11px] uppercase font-black tracking-[0.1em] md:tracking-[0.15em] whitespace-nowrap truncate
                                      ${TYPE_COLORS[currentType] || 'text-white/70'}`}
                     >
@@ -259,7 +259,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="h-7 flex items-center px-2 rounded-full bg-blue-500/10 border border-blue-500/20 max-w-[100px] md:max-w-none"
+                      className="h-7 flex items-center px-2 rounded-full bg-blue-500/10 border border-blue-500/20 max-w-[90px] md:max-w-none"
                     >
                       <span className="text-[9px] md:text-[10px] text-blue-400/80 font-bold uppercase tracking-wider whitespace-nowrap truncate">
                         {currentTemporal.date && currentTemporal.date}
@@ -282,7 +282,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             className="flex-1 min-w-0 bg-transparent h-full text-foreground placeholder:text-muted-foreground/60
                        outline-none text-[16px] leading-normal"
             style={{
-              paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? (currentTemporal ? "150px" : "80px") : "4px",
+              paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? (currentTemporal ? "185px" : "85px") : "16px",
               paddingRight: "4px"
             }}
           />

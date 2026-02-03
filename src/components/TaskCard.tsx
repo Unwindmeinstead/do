@@ -133,6 +133,7 @@ const TaskCard = ({
         marginTop: "calc(clamp(180px, 55vw, 200px) / -2)", // Dynamically center
         touchAction: 'none',
         transformOrigin: "center bottom", // Rotate/scale from bottom center feels more grounded
+        transform: "translate3d(0,0,0)", // Force GPU layer
       }}
       initial={{
         scale: 0.95,
@@ -274,7 +275,7 @@ const TaskCard = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.div >
   );
 };
 
