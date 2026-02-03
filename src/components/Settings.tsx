@@ -44,13 +44,13 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl h-[90vh] md:h-[500px] bg-zinc-900/90 border border-white/10 rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-2xl"
+            className="w-full max-w-2xl h-[90vh] md:h-[500px] bg-zinc-900/90 border border-white/10 rounded-[32px] overflow-hidden flex flex-row shadow-2xl"
           >
-            {/* Sidebar / Navigation tabs */}
-            <div className="w-full md:w-56 border-b md:border-b-0 md:border-r border-white/5 bg-black/20 p-4 md:p-6 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible shrink-0">
-              <div className="hidden md:flex items-center gap-2 mb-8 px-2">
-                <SettingsIcon className="w-5 h-5 text-white/40" />
-                <span className="font-semibold text-white tracking-tight">System</span>
+            {/* Sidebar / Navigation tabs - Left side always */}
+            <div className="w-[68px] md:w-56 border-r border-white/5 bg-black/20 py-6 flex flex-col gap-2 shrink-0 items-center md:items-stretch">
+              <div className="flex items-center gap-2 mb-6 px-0 md:px-6 justify-center md:justify-start">
+                <SettingsIcon className="w-6 h-6 md:w-5 md:h-5 text-white/40" />
+                <span className="hidden md:block font-semibold text-white tracking-tight">System</span>
               </div>
 
               {sidebarItems.map((item) => {
@@ -60,11 +60,12 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                   <button
                     key={item.id}
                     onClick={() => setActiveSection(item.id as Section)}
-                    className={`flex items-center gap-3 px-3 py-2 md:py-2.5 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap
+                    className={`flex items-center justify-center md:justify-start gap-3 w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-2.5 mx-auto md:mx-4 rounded-xl transition-all duration-200 text-sm font-medium
                               ${isActive ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
+                    title={item.label}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-white/40"}`} />
-                    <span className="md:inline">{item.label}</span>
+                    <Icon className={`w-5 h-5 md:w-4 md:h-4 ${isActive ? "text-white" : "text-white/40"}`} />
+                    <span className="hidden md:block">{item.label}</span>
                   </button>
                 );
               })}
