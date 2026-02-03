@@ -10,26 +10,65 @@ interface Task {
   priority: Priority;
   type: TaskType;
   label: string;
+  createdAt: number;
+  dueAt?: string;
+  temporal?: { date?: string; time?: string };
 }
 
 interface CardStackProps {
   tasks: Task[];
   onExpand: (id: string, position: { x: number; y: number }) => void;
   onDelete: (id: string) => void;
+  isGrouping?: boolean;
+  darkCards?: boolean;
 }
 
-const CardStack = ({ tasks, onExpand, onDelete }: CardStackProps) => {
-  // Sort tasks by priority for stacking (urgent on top)
-  const priorityOrder: Record<Priority, number> = {
-    urgent: 0,
-    high: 1,
-    medium: 2,
-    low: 3,
-  };
+const CardStack = ({ tasks, onExpand, onDelete, isGrouping, darkCards }: CardStackProps) => {
+  const sortedTasks = [...tasks].sort((a, b) => b.createdAt - a.createdAt);
 
-  const sortedTasks = [...tasks].sort(
-    (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
-  );
+  if (isGrouping) {
+    const groups = sortedTasks.reduce((acc, task) => {
+      const label = task.label;
+      if (!acc[label]) acc[label] = [];
+      acc[label].push(task);
+      return acc;
+    }, {} as Record<string, Task[]>);
+
+    const labels = Object.keys(groups);
+
+    return (
+      <div className="relative flex items-center justify-center w-full h-full gap-8">
+        <AnimatePresence mode="popLayout">
+          {labels.map((label, groupIndex) => {
+            const groupTasks = groups[label];
+            // Calculate a horizontal offset for each group
+            const xOffset = (groupIndex - (labels.length - 1) / 2) * 380;
+
+            return groupTasks.map((task, index) => (
+              <TaskCard
+                key={task.id}
+                id={task.id}
+                text={task.text}
+                index={index}
+                total={groupTasks.length}
+                color={task.color}
+                priority={task.priority}
+                type={task.type}
+                label={task.label}
+                notes={task.notes}
+                dueAt={task.dueAt}
+                temporal={task.temporal}
+                onExpand={onExpand}
+                onDelete={onDelete}
+                xTranslate={xOffset}
+                darkCards={darkCards}
+              />
+            ));
+          })}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex items-center justify-center w-full h-full">
@@ -45,8 +84,12 @@ const CardStack = ({ tasks, onExpand, onDelete }: CardStackProps) => {
             priority={task.priority}
             type={task.type}
             label={task.label}
+            notes={task.notes}
+            dueAt={task.dueAt}
+            temporal={task.temporal}
             onExpand={onExpand}
             onDelete={onDelete}
+            darkCards={darkCards}
           />
         ))}
       </AnimatePresence>

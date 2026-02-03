@@ -48,7 +48,7 @@ const ExpandedCard = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-md flex items-center justify-center"
       onClick={handleClose}
     >
       <motion.div
@@ -75,8 +75,12 @@ const ExpandedCard = ({
         }}
         onClick={(e) => e.stopPropagation()}
         className={`w-[90%] max-w-md min-h-[300px] rounded-3xl p-6
-                    bg-gradient-to-br ${color.bg} ${color.border} border
-                    shadow-2xl cursor-grab active:cursor-grabbing`}
+                    border-2 shadow-2xl cursor-grab active:cursor-grabbing
+                    backdrop-blur-2xl`}
+        style={{
+          background: "rgba(15, 15, 15, 0.85)",
+          borderColor: "rgba(255, 255, 255, 0.2)",
+        }}
       >
         {/* Close button */}
         <motion.button

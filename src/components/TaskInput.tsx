@@ -1,51 +1,121 @@
-import { useState, KeyboardEvent, useEffect, useRef } from "react";
+import { useState, KeyboardEvent, useEffect, useRef, ChangeEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { categorizeTask } from "@/utils/taskUtils";
+import { ArrowRight, Sparkles, Mic, Clock } from "lucide-react";
+import { categorizeTask, Priority, PRIORITY_COLORS, TaskType, TYPE_COLORS } from "@/utils/taskUtils";
 
 interface TaskInputProps {
   onSubmit: (text: string) => void;
   onOpenSettings: () => void;
+  autoLabel?: boolean;
 }
 
-const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
+const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProps) => {
   const [value, setValue] = useState("");
   const [borderFlash, setBorderFlash] = useState(false);
   const [currentLabel, setCurrentLabel] = useState("");
+  const [currentType, setCurrentType] = useState<TaskType>("general");
+  const [currentPriority, setCurrentPriority] = useState<Priority>("medium");
+  const [currentTemporal, setCurrentTemporal] = useState<{ date?: string, time?: string } | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const thinkingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const pressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Update label based on current text - like an intelligent being thinking
-    if (value.trim()) {
-      const category = categorizeTask(value);
-      setCurrentLabel(category.label);
-    } else {
-      setCurrentLabel("");
-    }
-  }, [value]);
+    // Setup Speech Recognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setValue(newValue);
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result: any) => result.transcript)
+          .join("");
+        setValue(transcript);
+
+        // Trigger smart detection immediately
+        const category = categorizeTask(transcript);
+        setCurrentLabel(category.label);
+        setCurrentType(category.type);
+        setCurrentPriority(category.priority);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const startListening = () => {
+    if (recognitionRef.current) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setValue(val);
 
     // Subtle border flash on each keystroke
     setBorderFlash(true);
 
-    // Clear existing timeout
     if (flashTimeoutRef.current) {
       clearTimeout(flashTimeoutRef.current);
     }
-
-    // Quick fade out after keystroke
     flashTimeoutRef.current = setTimeout(() => {
       setBorderFlash(false);
     }, 100);
+
+    // "Thinking" logic: Clear label and set thinking state while typing
+    if (val.trim() && autoLabel) {
+      setIsThinking(true);
+      setCurrentLabel("");
+      setCurrentTemporal(null);
+
+      if (thinkingTimeoutRef.current) {
+        clearTimeout(thinkingTimeoutRef.current);
+      }
+
+      // After 300ms of no typing, categorize the task
+      thinkingTimeoutRef.current = setTimeout(() => {
+        const category = categorizeTask(val);
+        setCurrentLabel(category.label);
+        setCurrentType(category.type);
+        setCurrentPriority(category.priority);
+        if (category.extractedDate || category.extractedTime) {
+          setCurrentTemporal({ date: category.extractedDate, time: category.extractedTime });
+        } else {
+          setCurrentTemporal(null);
+        }
+        setIsThinking(false);
+      }, 300);
+    } else {
+      setCurrentLabel("");
+      setCurrentPriority("medium");
+      setCurrentTemporal(null);
+      setIsThinking(false);
+      if (thinkingTimeoutRef.current) {
+        clearTimeout(thinkingTimeoutRef.current);
+      }
+    }
   };
 
   const handleSubmit = () => {
     const trimmed = value.trim().toLowerCase();
 
-    // Check for settings command
     if (trimmed === "/settings" || trimmed === "/s") {
       setValue("");
       onOpenSettings();
@@ -56,6 +126,8 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
       onSubmit(value.trim());
       setValue("");
       setCurrentLabel("");
+      setCurrentPriority("medium");
+      setCurrentTemporal(null);
     }
   };
 
@@ -81,30 +153,88 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
         }}
       >
         <div
-          className={`relative rounded-full flex items-center h-12 px-2
-                      bg-zinc-900/90 backdrop-blur-xl
+          className={`relative rounded-full flex items-center h-14 px-2
+                      bg-black/90 backdrop-blur-xl
                       border transition-all duration-75
                       ${borderFlash
               ? "border-white/60 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
               : "border-white/10"
             }`}
         >
-          {/* Intelligent task type label - positioned absolutely with fixed height container */}
+          {/* Intelligent task type label or Thinking dots */}
           <div className="absolute left-3 h-full flex items-center pointer-events-none z-10">
             <AnimatePresence mode="wait">
-              {currentLabel && (
-                <motion.span
-                  key={currentLabel}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="px-2 py-0.5 text-[10px] uppercase tracking-wider 
-                             bg-white/10 text-white/70 rounded-full whitespace-nowrap"
+              {isListening ? (
+                <motion.div
+                  key="listening"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center gap-2 h-7 px-4 rounded-full bg-blue-500/20 border border-blue-500/30"
                 >
-                  {currentLabel}
-                </motion.span>
-              )}
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="w-2 h-2 rounded-full bg-blue-400"
+                  />
+                  <span className="text-[10px] uppercase font-bold text-blue-300 tracking-widest">Listening</span>
+                </motion.div>
+              ) : isThinking ? (
+                <motion.div
+                  key="thinking"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center gap-1 px-4 h-7 rounded-full bg-white/5 border border-white/5"
+                >
+                  <motion.div
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0 }}
+                    className="w-1 h-1 rounded-full bg-white/40"
+                  />
+                  <motion.div
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
+                    className="w-1 h-1 rounded-full bg-white/40"
+                  />
+                  <motion.div
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
+                    className="w-1 h-1 rounded-full bg-white/40"
+                  />
+                </motion.div>
+              ) : currentLabel ? (
+                <motion.div
+                  key={currentLabel}
+                  initial={{ opacity: 0, scale: 0.95, x: -5 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, x: 2 }}
+                  transition={{ type: "spring", stiffness: 800, damping: 40, mass: 0.5 }}
+                  className="flex items-center gap-2"
+                >
+                  <div className="h-7 flex items-center px-1">
+                    <span className={`text-[11px] uppercase font-black tracking-[0.15em] whitespace-nowrap
+                                     ${TYPE_COLORS[currentType] || 'text-white/70'}`}
+                    >
+                      {currentLabel}
+                    </span>
+                  </div>
+
+                  {currentTemporal && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="h-7 flex items-center px-2.5 rounded-full bg-blue-500/10 border border-blue-500/20"
+                    >
+                      <span className="text-[10px] text-blue-400/80 font-bold uppercase tracking-wider whitespace-nowrap">
+                        {currentTemporal.date && currentTemporal.date}
+                        {currentTemporal.date && currentTemporal.time && " • "}
+                        {currentTemporal.time && currentTemporal.time}
+                      </span>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ) : null}
             </AnimatePresence>
           </div>
 
@@ -113,20 +243,45 @@ const TaskInput = ({ onSubmit, onOpenSettings }: TaskInputProps) => {
             value={value}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder="What needs to be done?"
+            placeholder={isListening ? "Listening..." : "What are you getting done today?"}
             className="flex-1 bg-transparent h-full text-white placeholder:text-white/40 
                        outline-none text-sm"
-            style={{ paddingLeft: currentLabel ? "80px" : "16px", paddingRight: "8px" }}
+            style={{
+              paddingLeft: (isListening || isThinking) ? "110px" : currentLabel ? (currentTemporal ? "220px" : "90px") : "18px",
+              paddingRight: "8px"
+            }}
           />
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
-            onClick={handleSubmit}
-            disabled={!value.trim()}
-            className="w-9 h-9 rounded-full bg-white flex items-center justify-center 
-                       disabled:opacity-30 disabled:cursor-not-allowed transition-opacity flex-shrink-0"
+            onMouseDown={() => {
+              pressTimeoutRef.current = setTimeout(startListening, 500);
+            }}
+            onMouseUp={() => {
+              if (pressTimeoutRef.current) {
+                clearTimeout(pressTimeoutRef.current);
+                if (isListening) {
+                  stopListening();
+                } else {
+                  handleSubmit();
+                }
+              }
+            }}
+            onMouseLeave={() => {
+              if (pressTimeoutRef.current) {
+                clearTimeout(pressTimeoutRef.current);
+                if (isListening) stopListening();
+              }
+            }}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
+                       ${isListening ? "bg-blue-500 scale-110 shadow-[0_0_20px_rgba(59,130,246,0.5)]" : "bg-white"}
+                       disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0`}
           >
-            <ArrowRight className="w-4 h-4 text-black" />
+            {isListening ? (
+              <Mic className="w-5 h-5 text-white animate-pulse" />
+            ) : (
+              <ArrowRight className="w-5 h-5 text-black" />
+            )}
           </motion.button>
         </div>
       </motion.div>

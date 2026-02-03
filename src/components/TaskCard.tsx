@@ -1,6 +1,6 @@
-import { motion, PanInfo } from "framer-motion";
-import { X } from "lucide-react";
-import { useState, useRef } from "react";
+import { motion, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import { X, Calendar, Clock } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { Priority, TaskType, PRIORITY_COLORS } from "@/utils/taskUtils";
 
 interface TaskCardProps {
@@ -12,8 +12,13 @@ interface TaskCardProps {
   priority: Priority;
   type: TaskType;
   label: string;
+  notes: string;
+  dueAt?: string;
+  temporal?: { date?: string; time?: string };
   onExpand: (id: string, position: { x: number; y: number }) => void;
   onDelete: (id: string) => void;
+  xTranslate?: number;
+  darkCards?: boolean;
 }
 
 const TaskCard = ({
@@ -23,50 +28,82 @@ const TaskCard = ({
   total,
   color,
   priority,
+  type,
   label,
+  notes,
+  dueAt,
+  temporal,
   onExpand,
   onDelete,
+  xTranslate = 0,
+  darkCards = true,
 }: TaskCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isUndocked, setIsUndocked] = useState(false);
   const hasMovedRef = useRef(false);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-10, 10]);
 
-  // Stacked cards behind each other with subtle rotation like the reference
-  const reverseIndex = total - 1 - index;
+  // Stacking index: 0 is the top card, 1 is the distinct card behind, etc.
+  // Since the list is sorted by priority (Urgent first), index 0 should be the front.
+  const stackingIndex = index;
 
-  // Subtle rotation alternating left/right for depth
-  const rotationDirection = reverseIndex % 2 === 0 ? 1 : -1;
-  const rotation = reverseIndex * 3 * rotationDirection;
+  // Stacking constants - Tuned for "Apple-like" presision
+  const CARD_OFFSET = 12; // Vertical pixels exposed per card
+  const SCALE_FACTOR = 0.04; // Scale difference per card
 
-  // Slight offset for each card behind
-  const xOffset = reverseIndex * 8 * rotationDirection;
-  const yOffset = reverseIndex * 4;
+  // Target values depend on whether the card is in the stack or "undocked"
+  const targetY = isUndocked ? 0 : -stackingIndex * CARD_OFFSET;
+  const targetScale = isUndocked ? 1 : 1 - stackingIndex * SCALE_FACTOR;
 
-  // Scale slightly smaller for cards behind
-  const scale = 1 - reverseIndex * 0.02;
+  // Sync motion values with target state if not dragging or undocked
+  // This ensures the initial "jump" is eliminated
+  useEffect(() => {
+    if (!isDragging && !isUndocked) {
+      x.set(0);
+      y.set(targetY);
+    }
+  }, [stackingIndex, isDragging, isUndocked, targetY, x, y]);
 
-  // Z-index - front card on top, but dragging card always on very top
-  const zIndex = isDragging ? 1000 : total - reverseIndex;
+  // Cards only tilt when in the stack (index > 0) and not undocked
+  const targetRotate = (isUndocked || stackingIndex === 0)
+    ? 0
+    : (stackingIndex % 2 === 0 ? 1 : -1) * (3 / stackingIndex);
+
+  // Limit the visual stack depth to avoid clutter if there are many items
+  const isVisible = stackingIndex < 4;
+  const opacity = isDragging ? 1 : isVisible ? 1 - stackingIndex * 0.15 : 0;
+
+  // Z-index handling
+  const zIndex = isDragging ? 100 : total - stackingIndex;
+
+  // Date formatting
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric'
+  }).format(new Date());
 
   const handleDragStart = () => {
     hasMovedRef.current = false;
+    setIsDragging(true);
   };
 
-  const handleDrag = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // If moved more than 5px, consider it a drag
-    if (Math.abs(info.offset.x) > 5 || Math.abs(info.offset.y) > 5) {
+  const handleDrag = (_: any, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 2 || Math.abs(info.offset.y) > 2) {
       hasMovedRef.current = true;
-      if (!isDragging) {
-        setIsDragging(true);
-      }
     }
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (_: any, info: PanInfo) => {
     setIsDragging(false);
+    // If the card was moved significantly, mark it as undocked
+    if (Math.abs(info.offset.x) > 5 || Math.abs(info.offset.y) > 5) {
+      setIsUndocked(true);
+    }
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Only expand if we didn't drag
     if (!hasMovedRef.current) {
       const rect = e.currentTarget.getBoundingClientRect();
       onExpand(id, {
@@ -79,81 +116,154 @@ const TaskCard = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // specific animation for delete could happen here
     onDelete(id);
   };
 
   return (
     <motion.div
       drag
+      dragElastic={0.6} // Rubber band feel
       dragMomentum={false}
-      dragElastic={0}
-      dragTransition={{ power: 0, timeConstant: 0 }}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
-      initial={{
-        scale: 0.8,
-        y: 100,
-        rotate: 0,
-        opacity: 0
+      style={{
+        width: 340, // Fixed width for consistency
+        height: 200, // Fixed height
+        x,
+        y,
+        rotate: isDragging ? rotate : targetRotate,
+        zIndex,
+        position: 'absolute',
+        top: '45%', // Slightly above center to account for stack height
+        left: '50%',
+        marginLeft: -170 + xTranslate, // Half of width + grouping offset
+        marginTop: -100, // Half of height
+        touchAction: 'none',
+        transformOrigin: "center bottom", // Rotate/scale from bottom center feels more grounded
       }}
+      initial={{ scale: 0.9, opacity: 0 }}
       animate={{
-        scale: isDragging ? 1.02 : scale,
-        rotate: isDragging ? 0 : rotation,
-        opacity: isDragging ? 1 : 1 - reverseIndex * 0.15
+        scale: isDragging ? 1.05 : targetScale,
+        opacity: opacity,
+        filter: isDragging ? 'brightness(1.05)' : 'brightness(1)',
       }}
-      exit={{
-        scale: 0.5,
-        opacity: 0,
-        y: -100,
-      }}
+      exit={{ scale: 0.8, opacity: 0, transition: { duration: 0.2 } }}
+      layout
+      layoutId={id}
       transition={{
         type: "spring",
-        stiffness: 500,
-        damping: 40,
-        mass: 0.3,
+        stiffness: 1000, // Maximum stiffness for instant reaction
+        damping: 50,    // High damping to prevent oscillation
+        mass: 0.1,      // Almost zero mass for no inertia
+        layout: { duration: 0 } // Instant layout transition
       }}
-      whileHover={!isDragging ? {
-        y: yOffset - 12,
-        scale: scale + 0.02,
-        transition: {
-          type: "spring",
-          stiffness: 600,
-          damping: 35
-        }
+      whileHover={!isDragging && stackingIndex === 0 ? {
+        scale: 1.02,
+        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
       } : undefined}
+      className="cursor-grab active:cursor-grabbing will-change-transform"
       onClick={handleClick}
-      style={{
-        zIndex,
-        x: isDragging ? undefined : xOffset,
-        y: isDragging ? undefined : yOffset,
-      }}
-      className={`absolute rounded-3xl p-6 w-80 min-h-44 cursor-grab active:cursor-grabbing
-                  bg-gradient-to-br ${color.bg} ${color.border} border
-                  shadow-[0_25px_80px_-20px_rgba(0,0,0,0.8)] ${isDragging ? 'shadow-[0_40px_100px_-15px_rgba(0,0,0,0.95)]' : ''}`}
     >
-      {/* X button to delete */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleDelete}
-        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-black/20 
-                   flex items-center justify-center hover:bg-black/40 transition-colors"
+      <div
+        className={`
+          relative w-full h-full rounded-[30px] p-6 overflow-hidden
+          border-2
+          shadow-[0_20px_50px_rgba(0,0,0,0.5)]
+          flex flex-col justify-between
+          backdrop-blur-2xl
+        `}
+        style={{
+          background: darkCards ? "rgba(10, 10, 10, 0.85)" : "rgba(255, 255, 255, 0.05)",
+          borderColor: darkCards ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.2)",
+        }}
       >
-        <X className="w-3 h-3 text-white/70" />
-      </motion.button>
+        {/* Glass shine effect */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-transparent pointer-events-none" />
 
-      {/* Priority dot and label */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className={`w-2 h-2 rounded-full ${PRIORITY_COLORS[priority]}`} />
-        <span className="text-xs text-white/50 uppercase tracking-wider">{label}</span>
-      </div>
+        {/* Header content */}
+        <div className="flex items-start justify-between z-10">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-2.5 h-2.5 rounded-full"
+              style={{
+                backgroundColor: color.bg,
+                boxShadow: `0 0 10px ${color.bg}88`
+              }}
+            />
+            <span className="text-[10px] font-bold text-white/70 uppercase tracking-[0.2em]">{label}</span>
+            {notes && notes.trim().length > 0 && (
+              <div
+                className="w-1.5 h-1.5 rounded-full bg-white/40 shadow-[0_0_5px_rgba(255,255,255,0.2)]"
+                title="Has notes"
+              />
+            )}
+          </div>
 
-      <p className="text-white text-base leading-relaxed font-medium pr-6">
-        {text}
-      </p>
-      <div className="absolute bottom-4 right-5 text-xs text-white/30">
-        #{index + 1}
+          <motion.button
+            whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.3)" }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleDelete}
+            className="w-8 h-8 -mr-2 -mt-2 rounded-full flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-white/60" />
+          </motion.button>
+        </div>
+
+        {/* Main Text and Notes */}
+        <div className="z-10 flex-1 flex flex-col justify-center">
+          <h3 className="text-white text-xl font-medium leading-snug tracking-tight line-clamp-2">
+            {text.charAt(0).toUpperCase() + text.slice(1)}
+          </h3>
+          {notes && notes.trim() && (
+            <p className="text-white/50 text-xs mt-1.5 line-clamp-2 font-normal leading-relaxed">
+              {notes}
+            </p>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between z-10 mt-4">
+          <div className="flex items-center gap-2">
+            <div className="px-3 py-1 rounded-full bg-white/5 text-[10px] text-white/50 font-medium font-mono flex items-center gap-1.5">
+              {temporal ? (
+                <>
+                  <Clock className="w-3 h-3 opacity-70" />
+                  <span>
+                    {temporal.date && temporal.date}
+                    {temporal.date && temporal.time && " • "}
+                    {temporal.time && temporal.time}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>{formattedDate}</span>
+                </>
+              )}
+            </div>
+
+            {type === "reminder" && !temporal && !dueAt && (
+              <motion.button
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+                whileTap={{ scale: 0.9 }}
+                className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:text-white transition-colors border border-white/5"
+                title="Select date"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Simple alert as mockup for now
+                  alert("Calendar selector coming soon!");
+                }}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+              </motion.button>
+            )}
+          </div>
+
+          <div className="text-[10px] text-white/30 font-medium font-mono">
+            {index + 1}/{total}
+          </div>
+        </div>
       </div>
     </motion.div>
   );
