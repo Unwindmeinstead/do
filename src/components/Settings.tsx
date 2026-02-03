@@ -56,13 +56,13 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl max-h-[85vh] h-auto md:h-[500px] bg-zinc-900/90 border border-white/10 rounded-[32px] overflow-hidden flex flex-row shadow-2xl"
+            className="w-full max-w-2xl max-h-[85vh] h-auto md:h-[500px] bg-background/95 border border-border rounded-[32px] overflow-hidden flex flex-row shadow-2xl"
           >
             {/* Sidebar / Navigation tabs - Left side always */}
-            <div className="w-[68px] md:w-56 border-r border-white/5 bg-black/20 py-6 flex flex-col gap-2 shrink-0 items-center md:items-stretch">
+            <div className="w-[68px] md:w-56 border-r border-border bg-muted/20 py-6 flex flex-col gap-2 shrink-0 items-center md:items-stretch">
               <div className="flex items-center gap-2 mb-6 px-0 md:px-6 justify-center md:justify-start">
-                <SettingsIcon className="w-6 h-6 md:w-5 md:h-5 text-white/40" />
-                <span className="hidden md:block font-semibold text-white tracking-tight">System</span>
+                <SettingsIcon className="w-6 h-6 md:w-5 md:h-5 text-muted-foreground" />
+                <span className="hidden md:block font-semibold text-foreground tracking-tight">System</span>
               </div>
 
               {sidebarItems.map((item) => {
@@ -73,10 +73,10 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                     key={item.id}
                     onClick={() => setActiveSection(item.id as Section)}
                     className={`flex items-center justify-center md:justify-start gap-3 w-10 h-10 md:w-auto md:h-auto md:px-3 md:py-2.5 mx-auto md:mx-4 rounded-xl transition-all duration-200 text-sm font-medium
-                              ${isActive ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}
+                              ${isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50"}`}
                     title={item.label}
                   >
-                    <Icon className={`w-5 h-5 md:w-4 md:h-4 ${isActive ? "text-white" : "text-white/40"}`} />
+                    <Icon className={`w-5 h-5 md:w-4 md:h-4 ${isActive ? "text-accent-foreground" : "text-muted-foreground"}`} />
                     <span className="hidden md:block">{item.label}</span>
                   </button>
                 );
@@ -87,12 +87,12 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
             <div className="flex-1 flex flex-col relative">
               {/* Header */}
               <div className="flex items-center justify-between px-8 py-6">
-                <h2 className="text-xl font-semibold text-white capitalize">{activeSection}</h2>
+                <h2 className="text-xl font-semibold text-foreground capitalize">{activeSection}</h2>
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors"
                 >
-                  <X className="w-4 h-4 text-white/40" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
@@ -109,34 +109,34 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                   >
                     {activeSection === "appearance" && (
                       <>
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-4">
+                        <div className="p-4 rounded-2xl bg-card border border-border space-y-4">
                           <div className="flex items-center justify-between">
                             <div className="flex flex-col">
-                              <span className="text-white text-sm font-medium">Dark Mode</span>
-                              <span className="text-white/40 text-xs">Switch between dark and light themes</span>
+                              <span className="text-foreground text-sm font-medium">Dark Mode</span>
+                              <span className="text-muted-foreground text-xs">Switch between dark and light themes</span>
                             </div>
-                            <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                            <div className="flex bg-muted p-1 rounded-lg border border-border">
                               <button
                                 onClick={() => toggleDarkMode(true)}
-                                className={`p-1.5 rounded-md transition-all ${isDarkMode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
+                                className={`p-1.5 rounded-md transition-all ${isDarkMode ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                               >
                                 <Moon className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => toggleDarkMode(false)}
-                                className={`p-1.5 rounded-md transition-all ${!isDarkMode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
+                                className={`p-1.5 rounded-md transition-all ${!isDarkMode ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                               >
                                 <Sun className="w-4 h-4" />
                               </button>
                             </div>
                           </div>
 
-                          <div className="h-px bg-white/5" />
+                          <div className="h-px bg-border" />
 
                           <div className="flex items-center justify-between">
                             <div className="flex flex-col">
-                              <span className="text-white text-sm font-medium">Black Glass Backdrop</span>
-                              <span className="text-white/40 text-xs">Enable high-blur transparency on cards</span>
+                              <span className="text-foreground text-sm font-medium">Black Glass Backdrop</span>
+                              <span className="text-muted-foreground text-xs">Enable high-blur transparency on cards</span>
                             </div>
                             <Switch checked={settings.darkCards} onCheckedChange={(v) => onUpdateSettings('darkCards', v)} />
                           </div>
@@ -146,18 +146,18 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
 
                     {activeSection === "behavior" && (
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border">
                           <div className="flex flex-col">
-                            <span className="text-white text-sm font-medium">Smart Auto-Label</span>
-                            <span className="text-white/40 text-xs">Predict task type as you type</span>
+                            <span className="text-foreground text-sm font-medium">Smart Auto-Label</span>
+                            <span className="text-muted-foreground text-xs">Predict task type as you type</span>
                           </div>
                           <Switch checked={settings.autoLabel} onCheckedChange={(v) => onUpdateSettings('autoLabel', v)} />
                         </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border">
                           <div className="flex flex-col">
-                            <span className="text-white text-sm font-medium">Notifications</span>
-                            <span className="text-white/40 text-xs">Get reminded about your tasks</span>
+                            <span className="text-foreground text-sm font-medium">Notifications</span>
+                            <span className="text-muted-foreground text-xs">Get reminded about your tasks</span>
                           </div>
                           <Switch checked={settings.notifications} onCheckedChange={(v) => onUpdateSettings('notifications', v)} />
                         </div>
@@ -168,13 +168,13 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                       <div className="space-y-3">
                         <button
                           onClick={onExportData}
-                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors"
+                          className="w-full flex items-center justify-between p-4 rounded-2xl bg-card border border-border hover:bg-accent transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <Download className="w-4 h-4 text-white/60" />
-                            <span className="text-white text-sm">Export Data</span>
+                            <Download className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-foreground text-sm">Export Data</span>
                           </div>
-                          <ArrowRight className="w-4 h-4 text-white/20" />
+                          <ArrowRight className="w-4 h-4 text-muted-foreground/50" />
                         </button>
 
                         <button
@@ -192,12 +192,12 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
 
                     {activeSection === "about" && (
                       <div className="flex flex-col items-center justify-center py-8 space-y-4 text-center">
-                        <div className="w-20 h-20 rounded-[28px] bg-gradient-to-tr from-white/20 to-white/5 flex items-center justify-center border border-white/10 shadow-xl">
-                          <div className="w-10 h-10 rounded-full border-4 border-white font-black text-white flex items-center justify-center text-2xl">D</div>
+                        <div className="w-20 h-20 rounded-[28px] bg-gradient-to-tr from-accent/50 to-accent/10 flex items-center justify-center border border-border shadow-xl">
+                          <div className="w-10 h-10 rounded-full border-4 border-foreground font-black text-foreground flex items-center justify-center text-2xl">D</div>
                         </div>
                         <div>
-                          <h4 className="text-white font-semibold text-lg">Do. Version 2.0</h4>
-                          <p className="text-white/40 text-xs max-w-xs leading-relaxed">
+                          <h4 className="text-foreground font-semibold text-lg">Do. Version 2.0</h4>
+                          <p className="text-muted-foreground text-xs max-w-xs leading-relaxed">
                             A minimal workspace for your thoughts and tasks. Built with focus and speed in mind.
                           </p>
                         </div>

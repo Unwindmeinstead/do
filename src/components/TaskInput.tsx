@@ -58,6 +58,12 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
     }
   };
 
+  const showCommands = value.startsWith("/");
+  const commands = [
+    { cmd: "/settings", desc: "Open System Settings" },
+    { cmd: "/group", desc: "Toggle Smart Grouping" }
+  ];
+
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -146,7 +152,41 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
+        className="w-full relative"
       >
+        {/* Command Suggestions */}
+        <AnimatePresence>
+          {showCommands && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute bottom-full left-0 w-full mb-4 p-2 rounded-2xl 
+                         bg-popover/80 backdrop-blur-xl border border-border shadow-2xl overflow-hidden"
+            >
+              {commands.map((c) => (
+                <button
+                  key={c.cmd}
+                  onClick={() => {
+                    if (c.cmd === "/settings") onOpenSettings();
+                    else onSubmit(c.cmd);
+                    setValue("");
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/10 transition-colors text-left group"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-foreground font-mono font-medium text-sm">{c.cmd}</span>
+                    <span className="text-muted-foreground text-xs">{c.desc}</span>
+                  </div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground/50 border border-white/10 px-1.5 py-0.5 rounded group-hover:border-white/30 transition-colors">
+                    Enter
+                  </div>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div
           className={`relative w-full rounded-full flex items-center h-14 pl-6 pr-1.5
                       bg-background/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]
