@@ -67,7 +67,7 @@ const TaskCard = ({
   const opacity = isDragging ? 1 : isVisible ? 1 - stackingIndex * 0.15 : 0;
 
   // Z-index handling
-  const zIndex = isDragging ? 100 : total - stackingIndex;
+  const zIndex = isDragging ? 100 : isUndocked ? 50 : total - stackingIndex;
 
   // Date formatting
   const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -120,8 +120,8 @@ const TaskCard = ({
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
       style={{
-        width: 340, // Fixed width for consistency
-        height: 200, // Fixed height
+        width: "clamp(300px, 90vw, 340px)",
+        height: "clamp(180px, 55vw, 200px)",
         x,
         y,
         rotate: isDragging ? rotate : targetRotate,
@@ -129,8 +129,8 @@ const TaskCard = ({
         position: 'absolute',
         top: '45%', // Slightly above center to account for stack height
         left: '50%',
-        marginLeft: -170 + xTranslate, // Half of width + grouping offset
-        marginTop: -100, // Half of height
+        marginLeft: "calc(clamp(300px, 90vw, 340px) / -2)", // Dynamically center
+        marginTop: "calc(clamp(180px, 55vw, 200px) / -2)", // Dynamically center
         touchAction: 'none',
         transformOrigin: "center bottom", // Rotate/scale from bottom center feels more grounded
       }}
@@ -143,8 +143,8 @@ const TaskCard = ({
       animate={{
         scale: isDragging ? 1.05 : targetScale,
         opacity: opacity,
-        y: isDragging ? undefined : targetY, // Animate Y position relative to stack
-        x: isDragging ? undefined : 0,       // Center X when not dragging
+        y: (isDragging || isUndocked) ? undefined : targetY, // Stop controlling position if dragged/undocked
+        x: (isDragging || isUndocked) ? undefined : 0,
         rotateX: 0,
         filter: isDragging ? 'brightness(1.05)' : 'brightness(1)',
       }}
