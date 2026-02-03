@@ -255,19 +255,6 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
                     </span>
                   </div>
 
-                  {currentTemporal && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="h-7 flex items-center px-2 rounded-full bg-blue-500/10 border border-blue-500/20 max-w-[90px] md:max-w-none"
-                    >
-                      <span className="text-[9px] md:text-[10px] text-blue-400/80 font-bold uppercase tracking-wider whitespace-nowrap truncate">
-                        {currentTemporal.date && currentTemporal.date}
-                        {currentTemporal.date && currentTemporal.time && " • "}
-                        {currentTemporal.time && currentTemporal.time}
-                      </span>
-                    </motion.div>
-                  )}
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -282,7 +269,7 @@ const TaskInput = ({ onSubmit, onOpenSettings, autoLabel = true }: TaskInputProp
             className="flex-1 min-w-0 bg-transparent h-full text-foreground placeholder:text-muted-foreground/60
                        outline-none text-[16px] leading-normal"
             style={{
-              paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? (currentTemporal ? "185px" : "85px") : "16px",
+              paddingLeft: (isListening || isThinking) ? "80px" : currentLabel ? "85px" : "16px",
               paddingRight: "4px"
             }}
           />
