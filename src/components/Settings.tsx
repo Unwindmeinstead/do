@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Palette, Bell, Trash2, Download, Info, Settings as SettingsIcon, Sun, Moon, Shield, Sparkles } from "lucide-react";
+import { X, Palette, Bell, Trash2, Download, Info, Settings as SettingsIcon, Sun, Moon, Shield, Sparkles, Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 
@@ -193,10 +193,12 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                     {activeSection === "about" && (
                       <div className="flex flex-col items-center justify-center py-8 space-y-4 text-center">
                         <div className="w-20 h-20 rounded-[28px] bg-gradient-to-tr from-accent/50 to-accent/10 flex items-center justify-center border border-border shadow-xl">
-                          <div className="w-10 h-10 rounded-full border-4 border-foreground font-black text-foreground flex items-center justify-center text-2xl">D</div>
+                          <div className="w-10 h-10 rounded-full border-4 border-foreground font-black text-foreground flex items-center justify-center">
+                            <Check className="w-6 h-6 stroke-[4]" />
+                          </div>
                         </div>
                         <div>
-                          <h4 className="text-foreground font-semibold text-lg">Do. Version 2.0</h4>
+                          <h4 className="text-foreground font-semibold text-lg">Done Version 2.0</h4>
                           <p className="text-muted-foreground text-xs max-w-xs leading-relaxed">
                             A minimal workspace for your thoughts and tasks. Built with focus and speed in mind.
                           </p>
