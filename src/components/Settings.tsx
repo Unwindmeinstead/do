@@ -19,7 +19,19 @@ interface SettingsProps {
 type Section = "appearance" | "behavior" | "data" | "about";
 
 const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdateSettings }: SettingsProps) => {
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeSection, setActiveSection] = useState<Section>("appearance");
+
+  // Toggle dark mode
+  const toggleDarkMode = (isDark: boolean) => {
+    setIsDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const sidebarItems = [
     { id: "appearance", label: "Appearance", icon: Palette },
@@ -35,7 +47,7 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-xl flex items-start md:items-center justify-start md:justify-center p-4 md:p-4"
+          className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 md:p-4"
           onClick={onClose}
         >
           <motion.div
@@ -44,7 +56,7 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-2xl h-[90vh] md:h-[500px] bg-zinc-900/90 border border-white/10 rounded-[32px] overflow-hidden flex flex-row shadow-2xl"
+            className="w-full max-w-2xl max-h-[85vh] h-auto md:h-[500px] bg-zinc-900/90 border border-white/10 rounded-[32px] overflow-hidden flex flex-row shadow-2xl"
           >
             {/* Sidebar / Navigation tabs - Left side always */}
             <div className="w-[68px] md:w-56 border-r border-white/5 bg-black/20 py-6 flex flex-col gap-2 shrink-0 items-center md:items-stretch">
@@ -104,8 +116,18 @@ const Settings = ({ isOpen, onClose, onClearAll, onExportData, settings, onUpdat
                               <span className="text-white/40 text-xs">Switch between dark and light themes</span>
                             </div>
                             <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
-                              <button className="p-1.5 rounded-md bg-white/10 text-white"><Moon className="w-4 h-4" /></button>
-                              <button className="p-1.5 rounded-md text-white/40 hover:text-white/60"><Sun className="w-4 h-4" /></button>
+                              <button
+                                onClick={() => toggleDarkMode(true)}
+                                className={`p-1.5 rounded-md transition-all ${isDarkMode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
+                              >
+                                <Moon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => toggleDarkMode(false)}
+                                className={`p-1.5 rounded-md transition-all ${!isDarkMode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
+                              >
+                                <Sun className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
 
